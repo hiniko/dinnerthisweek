@@ -1,0 +1,615 @@
+/* Dinner This Week — game-show styling, mobile first. No external assets. */
+
+:root {
+  --bg:      #16062b;
+  --bg2:     #2b0b3f;
+  --panel:   #23103a;
+  --panel2:  #1b0b2e;
+  --ink:     #fdf6e3;
+  --dim:     #b39ccb;
+  --gold:    #ffc93c;
+  --hot:     #ff4d6d;
+  --cool:    #38e8d0;
+  --line:    #4a2a68;
+  --title-h: 2.1rem;
+  --bar-h:   3rem;
+  --head-h:  calc(var(--title-h) + var(--bar-h) + 5px);   /* + bulb rail */
+
+  --easy:    #38e8d0;
+  --medium:  #ffc93c;
+  --hard:    #ff9f45;
+  --project: #ff4d6d;
+  --zero:    #8ce99a;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  padding: calc(var(--head-h) + .75rem) .75rem 2rem;
+  font: 16px/1.45 "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  color: var(--ink);
+  background: radial-gradient(ellipse at 50% -5%, var(--bg2), var(--bg) 55%) fixed, var(--bg);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Sticky bar ─────────────────────────────────────────── */
+.bar {
+  position: fixed; inset: 0 0 auto 0; z-index: 20;
+  background: rgba(22,6,43,.94);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+/* Row one: identity only. Row two: settings on the left, the flow on the right. */
+.bar-title {
+  display: flex; align-items: center; justify-content: center;
+  height: var(--title-h);
+  padding: 0 .6rem;
+  border-bottom: 1px solid rgba(74,42,104,.5);
+}
+.bar-flow {
+  height: var(--bar-h);
+  display: flex; align-items: center; gap: .5rem;
+  max-width: 900px; margin: 0 auto; padding: 0 .6rem;
+}
+.brand {
+  font-weight: 800; letter-spacing: .06em; font-size: .9rem;
+  text-transform: uppercase; white-space: nowrap;
+}
+.brand-hi { color: var(--gold); margin-left: .35em; }
+
+.gear {
+  flex: 0 0 auto;
+  display: flex; align-items: center; gap: .3rem;
+  background: none; border: 1px solid var(--line); border-radius: 8px;
+  color: var(--dim); cursor: pointer;
+  font: 600 .78rem/1 inherit; padding: .45rem .55rem;
+}
+.gear:hover { color: var(--ink); border-color: var(--dim); }
+.gear[aria-pressed="true"] {
+  color: var(--ink); background: var(--panel); border-color: var(--cool);
+}
+.gear-t { display: none; }      /* phone: the cog carries it */
+
+/* ── Step bar ───────────────────────────────────────────── */
+/* Numbered and chevron-separated, so the three tabs read as 1 → 2 → 3 rather
+   than as three unrelated destinations. */
+.tabs { display: flex; align-items: center; gap: .15rem; flex: 1; min-width: 0; }
+.tab {
+  flex: 1 1 auto; min-width: 0;
+  display: flex; align-items: center; gap: .35rem;
+  background: none; border: 1px solid transparent; border-radius: 8px;
+  color: var(--dim); cursor: pointer;
+  font: 600 .78rem/1 inherit; letter-spacing: .02em;
+  padding: .45rem .35rem;
+  white-space: nowrap; overflow: hidden;
+}
+.step-n {
+  flex: 0 0 auto;
+  display: grid; place-items: center;
+  width: 1.25rem; height: 1.25rem; border-radius: 99px;
+  background: var(--line); color: var(--ink);
+  font-size: .68rem; font-weight: 800;
+}
+.step-t { overflow: hidden; text-overflow: ellipsis; }
+.step-arrow { flex: 0 0 auto; color: var(--line); font-size: .95rem; }
+
+.tab:hover { color: var(--ink); }
+.tab[aria-selected="true"] {
+  color: var(--ink); background: var(--panel); border-color: var(--line);
+}
+.tab[aria-selected="true"] .step-n { background: var(--gold); color: #2b0038; }
+/* Steps already visited read as done, so progress through the flow is visible. */
+.tab.done .step-n { background: var(--cool); color: #0d2b26; }
+.tab-n { color: var(--dim); font-weight: 400; font-size: .9em; }
+
+/* ── Step navigation ────────────────────────────────────── */
+.next-bar {
+  display: flex; gap: .5rem; justify-content: flex-end; flex-wrap: wrap;
+  margin-top: 1rem;
+}
+.next {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 99px;
+  color: var(--ink); cursor: pointer;
+  font: 600 .82rem/1 inherit; padding: .6rem 1rem;
+}
+.next:hover { border-color: var(--cool); color: var(--cool); }
+.next.primary {
+  background: linear-gradient(160deg, #ffe066, var(--gold));
+  border-color: transparent; color: #2b0038; font-weight: 800;
+}
+.next.primary:hover { color: #2b0038; filter: brightness(1.07); }
+@media (max-width: 420px) {
+  .next-bar { flex-direction: column-reverse; }
+  .next { width: 100%; }
+}
+
+
+/* Flashing bulb rail sits under the bar */
+.bulbs { display: flex; gap: 4px; padding: 0 4px 3px; height: 5px; pointer-events: none; }
+.bulbs i { flex: 1; height: 4px; border-radius: 99px; background: var(--line); }
+body.flashing .bulbs i { animation: bulb .4s steps(1, end) infinite; }
+@keyframes bulb {
+  0%, 49%  { background: var(--gold); box-shadow: 0 0 7px var(--gold); }
+  50%,100% { background: var(--hot);  box-shadow: 0 0 7px var(--hot);  }
+}
+
+/* ── Sections ───────────────────────────────────────────── */
+main { max-width: 900px; margin: 0 auto; }
+.sec[hidden] { display: none; }
+.sec-head {
+  display: flex; align-items: baseline; gap: .6rem;
+  margin: 0 0 .75rem; padding: 0 .1rem;
+}
+.sec-head h2 {
+  margin: 0; flex: 1;
+  font-size: .85rem; text-transform: uppercase; letter-spacing: .1em;
+  color: var(--gold);
+}
+.count { color: var(--dim); font-size: .78rem; }
+.dim { color: var(--dim); }
+.hint { font-size: .78rem; margin: .8rem .1rem 0; }
+
+button.link {
+  background: none; border: none; padding: 0;
+  color: var(--cool); cursor: pointer; font: inherit; font-size: .8rem;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+button.link:hover { color: var(--gold); }
+
+select, input[type="number"] {
+  background: #341552; color: var(--ink);
+  border: 1px solid var(--line); border-radius: 7px;
+  padding: .35rem .4rem; font: inherit; font-size: .82rem;
+  max-width: 100%;
+}
+select:focus-visible, input:focus-visible, button:focus-visible {
+  outline: 2px solid var(--cool); outline-offset: 2px;
+}
+input[type="checkbox"] { accent-color: var(--cool); width: 1.15rem; height: 1.15rem; }
+
+/* ── Upload-first gating ────────────────────────────────── */
+/* Until a pool is loaded the app has nothing to show, so every section falls back
+   to its own empty state and the dropzone is the only live control. */
+.only-pool  { display: none; }
+body.has-pool .only-pool { display: block; }
+body.has-pool .no-pool   { display: none; }
+span.only-pool { display: none; }
+body.has-pool span.only-pool { display: inline; }
+
+.empty-state { text-align: center; padding: 2rem .75rem 1rem; }
+.empty-state h2 {
+  margin: 0 0 .5rem; font-size: 1.1rem; color: var(--gold);
+  text-transform: uppercase; letter-spacing: .06em;
+}
+.empty-state p { margin: .35rem auto; max-width: 30rem; font-size: .88rem; }
+.empty-state .small { font-size: .78rem; }
+
+/* ── Dropzone ───────────────────────────────────────────── */
+.dropzone {
+  border: 2px dashed var(--line); border-radius: 10px;
+  padding: 1.1rem .7rem; text-align: center; margin-bottom: .8rem;
+  transition: border-color .15s, background .15s, padding .15s;
+}
+.dropzone p { margin: .15rem 0; font-size: .82rem; }
+.dropzone.over { border-color: var(--cool); background: rgba(56,232,208,.08); }
+.dropzone.err  { border-color: var(--hot); }
+.dropzone.busy { border-color: var(--gold); }
+/* Loaded: shrink out of the way, it's done its job. */
+.dropzone.loaded { padding: .45rem .7rem; border-style: solid; opacity: .75; }
+.dropzone.loaded:hover { opacity: 1; }
+
+/* ── Pool filters ───────────────────────────────────────── */
+.filters {
+  display: flex; gap: .4rem; align-items: center; flex-wrap: wrap;
+  margin-bottom: .6rem;
+}
+.filters select { flex: 0 0 auto; }
+.filters input[type="search"] {
+  flex: 1 1 8rem; min-width: 0;
+  background: #341552; color: var(--ink);
+  border: 1px solid var(--line); border-radius: 7px;
+  padding: .35rem .5rem; font: inherit; font-size: .82rem;
+  -webkit-appearance: none; appearance: none;
+}
+.ritem.empty-note {
+  display: block; text-align: center; color: var(--dim); font-size: .85rem;
+}
+code { background: rgba(0,0,0,.3); padding: .05em .3em; border-radius: 4px; font-size: .9em; }
+
+/* ── Recipe list (cards, not a table — survives any width) ─ */
+.rlist { list-style: none; margin: 0; padding: 0; display: grid; gap: .4rem; }
+.ritem {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+  padding: .55rem .65rem;
+  display: grid; grid-template-columns: 1fr auto; gap: .3rem .5rem;
+  align-items: center;
+}
+.ritem.benched { opacity: .45; }
+.rname { font-weight: 700; font-size: .9rem; line-height: 1.25; }
+.rmeta { grid-column: 1; color: var(--dim); font-size: .74rem; }
+.rctl {
+  grid-column: 1 / -1; grid-row: auto;
+  display: flex; align-items: center; gap: .4rem;
+  margin-top: .15rem;
+}
+.rctl select { flex: 1 1 0; min-width: 0; }
+.rctl input[type="checkbox"] { flex: 0 0 auto; margin-left: .1rem; }
+/* A benched or unrolled recipe shouldn't read as active. */
+.ritem .s-course { font-weight: 600; }
+
+/* Complexity chips */
+.chip {
+  display: inline-block; padding: .08rem .45rem; border-radius: 99px;
+  font-size: .68rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .04em; color: #1b0a2b; white-space: nowrap;
+}
+.chip.c0 { background: var(--zero); }
+.chip.c1 { background: var(--easy); }
+.chip.c2 { background: var(--medium); }
+.chip.c3 { background: var(--hard); }
+.chip.c4 { background: var(--project); color: #fff; }
+
+/* ── Day setup ──────────────────────────────────────────── */
+.days { display: grid; gap: .4rem; }
+.day-row {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+  padding: .5rem .6rem;
+  display: grid; gap: .35rem .5rem;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas: "name mode" "tier cap" "extras extras";
+  align-items: center;
+}
+.extras {
+  grid-area: extras;
+  display: flex; gap: .9rem; padding-top: .1rem;
+}
+.extras label {
+  display: flex; align-items: center; gap: .3rem;
+  font-size: .76rem; color: var(--dim); cursor: pointer; white-space: nowrap;
+}
+.extras label.none { opacity: .35; cursor: not-allowed; }
+.extras label.on { color: var(--cool); }
+.extras input[type="checkbox"] { width: 1rem; height: 1rem; }
+.day-row .dname {
+  grid-area: name;
+  font-weight: 800; letter-spacing: .04em; font-size: .82rem;
+  text-transform: uppercase;
+}
+.day-row .s-mode { grid-area: mode; }
+.day-row .s-tier { grid-area: tier; }
+.day-row .s-cap  { grid-area: cap; }
+.day-row select { width: 100%; }
+
+/* A non-cooking day keeps its mode legible; only the now-irrelevant limits fade. */
+.day-row.off .s-tier, .day-row.off .s-cap { opacity: .4; }
+.day-row.off .dname { color: var(--dim); }
+.day-row.off .s-mode { border-color: var(--cool); color: var(--cool); }
+
+/* ── Spin dock + button ─────────────────────────────────── */
+.spin-dock { text-align: center; margin-top: 1rem; }
+.big-spin {
+  width: 100%; max-width: 22rem;
+  font: 800 clamp(1rem, 4.5vw, 1.4rem)/1 "Avenir Next", system-ui, sans-serif;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: #2b0038; cursor: pointer;
+  padding: .95rem 1.5rem; border: none; border-radius: 99px;
+  background: linear-gradient(160deg, #ffe066, var(--gold) 45%, #ff8f3c);
+  box-shadow: 0 5px 0 #b8791a, 0 10px 24px rgba(255,201,60,.28);
+  transition: transform .08s, box-shadow .08s;
+}
+.big-spin:hover  { transform: translateY(-2px); box-shadow: 0 7px 0 #b8791a, 0 14px 30px rgba(255,201,60,.36); }
+.big-spin:active { transform: translateY(3px); box-shadow: 0 2px 0 #b8791a; }
+.big-spin:disabled { opacity: .6; cursor: wait; transform: none; box-shadow: 0 5px 0 #b8791a; }
+#spinNote { margin: .7rem 0 0; font-size: .78rem; min-height: 1.1em; }
+
+/* ── Reels / result board ───────────────────────────────── */
+.board { display: grid; gap: .4rem; }
+
+/* A day card: the day label, then one reel row per course it asked for. */
+.slot {
+  background: var(--panel2); border: 1px solid var(--line); border-radius: 10px;
+  padding: .3rem .6rem;
+  display: grid; gap: 0 .6rem;
+  grid-template-columns: 2.6rem 1fr;
+  align-items: start;
+}
+.slot .sday {
+  font-weight: 800; text-transform: uppercase; letter-spacing: .05em;
+  color: var(--dim); font-size: .72rem;
+  padding-top: .55rem;
+}
+.srows { display: grid; }
+
+/* One course line. Its own overflow clip keeps a spinning strip off its siblings. */
+.srow {
+  overflow: hidden;
+  display: grid; gap: 0 .5rem;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "reel again" "meta again";
+  align-items: center;
+  transition: box-shadow .25s;
+}
+.srow + .srow { border-top: 1px solid rgba(74,42,104,.45); }
+.scourse { display: none; }        /* label lives in the meta line on a phone */
+
+/* The window is 2.2 cells tall so partial neighbours show above and below — that
+   glimpse is what makes it read as a spinning reel. It sizes the row rather than
+   overhanging it, so a spinning strip never bleeds into the next one. */
+.reel {
+  grid-area: reel;
+  --cell: 1.5rem;
+  position: relative; overflow: hidden;
+  height: calc(var(--cell) * 2.2);
+  mask-image: linear-gradient(to bottom, transparent, #000 36%, #000 64%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 36%, #000 64%, transparent);
+}
+.reel-strip {
+  position: absolute; inset: 0 0 auto 0;
+  will-change: transform;
+}
+.reel-cell {
+  height: var(--cell); line-height: var(--cell);
+  font-weight: 700; font-size: .95rem;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.reel-cell a { color: inherit; text-decoration-color: var(--line); }
+
+.srow.spinning .reel-strip { filter: blur(1.1px); }
+.srow.spinning .reel-cell  { color: var(--cool); }
+.srow.idle .reel-cell { color: var(--dim); letter-spacing: .12em; }
+
+/* Extras read as the supporting act, not a second main. */
+.srow[data-course="side"] .reel-cell,
+.srow[data-course="dessert"] .reel-cell { font-size: .86rem; font-weight: 600; }
+
+.smeta {
+  grid-area: meta; color: var(--dim); font-size: .7rem;
+  margin-top: -.3rem;            /* pull up under the reel's masked lower edge */
+}
+.srow[data-course="side"] .smeta::before    { content: 'side · '; }
+.srow[data-course="dessert"] .smeta::before { content: 'dessert · '; }
+
+.srow.landed { animation: land .4s ease-out; }
+@keyframes land {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.015); }
+  100% { transform: scale(1); }
+}
+.slot:has(.srow.landed) {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold), 0 0 20px rgba(255,201,60,.3);
+}
+.srow.empty .reel-cell { color: var(--dim); font-weight: 400; font-style: italic; font-size: .85rem; }
+.srow.empty .smeta::before { content: none; }
+
+/* A non-cooking night is a stated decision, not a gap — dim the card but keep
+   the reason readable. */
+.slot.off { background: transparent; border-style: dashed; }
+.slot.off .reel-cell {
+  color: var(--dim); font-weight: 600; font-size: .82rem; letter-spacing: .02em;
+}
+
+.reroll {
+  grid-area: again;
+  background: none; border: 1px solid var(--line); border-radius: 99px;
+  color: var(--dim); cursor: pointer; font-size: 1rem; line-height: 1;
+  padding: .3rem .45rem;
+}
+.reroll:hover:not(:disabled) { color: var(--gold); border-color: var(--gold); }
+.reroll:disabled { opacity: .3; cursor: default; }
+
+/* ── Settings screen ────────────────────────────────────── */
+.settings { display: grid; gap: .5rem; }
+/* Phone: label, then the control full width, then the explanation. Stacking keeps
+   the help text readable instead of squeezing it beside a dropdown. */
+.set-row {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+  padding: .7rem .75rem;
+  display: grid; gap: .45rem;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "label ctl" "help help";
+  align-items: center;
+}
+.set-text { display: contents; }
+.set-label { grid-area: label; font-weight: 700; font-size: .9rem; }
+.set-help {
+  grid-area: help;
+  color: var(--dim); font-size: .76rem; line-height: 1.45;
+}
+.set-ctl { grid-area: ctl; justify-self: end; }
+.set-ctl select { max-width: 100%; }
+
+/* Toggle switch — a styled checkbox, so it stays keyboard-operable. */
+.switch { display: inline-flex; cursor: pointer; }
+.switch input {
+  position: absolute; opacity: 0; width: 2.6rem; height: 1.5rem; margin: 0;
+  cursor: pointer;
+}
+.switch .track {
+  width: 2.6rem; height: 1.5rem; border-radius: 99px;
+  background: #341552; border: 1px solid var(--line);
+  position: relative; transition: background .15s, border-color .15s;
+}
+.switch .track::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 1.1rem; height: 1.1rem; border-radius: 99px;
+  background: var(--dim); transition: transform .15s, background .15s;
+}
+.switch input:checked + .track { background: rgba(56,232,208,.25); border-color: var(--cool); }
+.switch input:checked + .track::after { transform: translateX(1.05rem); background: var(--cool); }
+.switch input:focus-visible + .track { outline: 2px solid var(--cool); outline-offset: 2px; }
+
+@media (min-width: 620px) {
+  /* Room for the help text beside the label, control on the right. */
+  .set-row {
+    grid-template-columns: 1fr 15rem;
+    grid-template-areas: "label ctl" "help ctl";
+    align-items: start;
+  }
+  .set-ctl { align-self: center; }
+  .set-ctl select { width: 100%; }
+}
+
+/* ── Shopping list (on screen) ──────────────────────────── */
+.shop {
+  margin-top: 1.25rem;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+  padding: .8rem .75rem;
+}
+.shop-head {
+  display: flex; align-items: baseline; gap: .6rem;
+  margin-bottom: .5rem;
+}
+.shop-head h3 {
+  margin: 0; flex: 1;
+  font-size: .82rem; text-transform: uppercase; letter-spacing: .09em;
+  color: var(--gold);
+}
+.shop-list {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; gap: .1rem;
+}
+.shop-item label {
+  display: flex; align-items: baseline; gap: .5rem;
+  padding: .3rem .2rem; cursor: pointer; border-radius: 6px;
+  font-size: .86rem;
+}
+.shop-item label:hover { background: rgba(255,255,255,.04); }
+.shop-item input { flex: 0 0 auto; margin: 0; position: relative; top: .15rem; }
+.shop-item .amt {
+  /* Fixed floor so names line up, but free to grow — a combined amount like
+     "75g + 1 cup" must not run into the name beside it. */
+  flex: 0 0 auto; min-width: 3.6rem;
+  padding-right: .4rem;
+  color: var(--gold); font-weight: 700; font-variant-numeric: tabular-nums;
+  font-size: .82rem;
+}
+.shop-item .iname { flex: 1 1 auto; }
+.shop-item.got label { opacity: .4; }
+.shop-item.got .iname { text-decoration: line-through; }
+/* No parsed amount — the line is shown as written, indented to line up. */
+.shop-item.loose .iname { color: var(--dim); font-style: italic; }
+.shop-item.loose label { padding-left: 0; }
+.shop-note { font-size: .74rem; margin: .5rem .2rem 0; }
+.shop-sub {
+  margin: .9rem .2rem .3rem;
+  font-size: .72rem; text-transform: uppercase; letter-spacing: .09em;
+  color: var(--dim); font-weight: 700;
+  border-top: 1px solid var(--line); padding-top: .7rem;
+}
+/* Staples carry no amount, so the name starts where the numbers would. */
+.shop-list.pantry .shop-item .iname { color: var(--dim); }
+@media (min-width: 620px) {
+  .shop-list { grid-template-columns: 1fr 1fr; gap: .1rem 1.25rem; }
+}
+
+#confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; }
+.print-only { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .srow.spinning .reel-strip { filter: none; }
+  .srow.landed { animation: none; }
+  body.flashing .bulbs i { animation: none; }
+}
+
+/* ── Wider screens ──────────────────────────────────────── */
+@media (min-width: 620px) {
+  :root { --title-h: 2.4rem; --bar-h: 3.1rem; }
+  body { padding-left: 1.25rem; padding-right: 1.25rem; }
+  .brand { font-size: 1rem; }
+  .gear-t { display: inline; }
+  .gear { padding: .5rem .8rem; }
+  .tabs { flex: 0 1 auto; margin-left: auto; }
+  .tab { flex: 0 0 auto; font-size: .82rem; padding: .55rem .8rem; }
+
+  .ritem {
+    grid-template-columns: 1fr auto;
+    gap: .15rem .75rem;
+  }
+  .ritem .rctl {
+    grid-column: 2; grid-row: 1 / span 2; margin-top: 0;
+    justify-content: flex-end;
+  }
+  .rctl select { flex: 0 0 auto; }
+  .rname { font-size: .95rem; }
+
+  .day-row {
+    grid-template-columns: 5.5rem 8rem 1fr 7.5rem auto;
+    grid-template-areas: "name mode tier cap extras";
+  }
+  .extras { padding-top: 0; }
+
+  .slot { grid-template-columns: 3.2rem 1fr; }
+  .srow {
+    grid-template-columns: 4.2rem 1fr auto auto;
+    grid-template-areas: "course reel meta again";
+  }
+  .scourse {
+    display: block; grid-area: course;
+    font-size: .68rem; text-transform: uppercase; letter-spacing: .08em;
+    color: var(--dim); font-weight: 700;
+  }
+  .smeta { text-align: right; white-space: nowrap; margin-top: 0; }
+  /* The course has its own column now, so drop the phone-only prefix. */
+  .srow[data-course="side"] .smeta::before,
+  .srow[data-course="dessert"] .smeta::before { content: none; }
+  .reel { --cell: 1.7rem; }
+  .reel-cell { font-size: 1.02rem; }
+  .srow[data-course="side"] .reel-cell,
+  .srow[data-course="dessert"] .reel-cell { font-size: .95rem; }
+}
+
+/* ── Print / PDF ────────────────────────────────────────── */
+@media print {
+  body {
+    background: #fff; color: #000; padding: 0;
+    font: 11pt/1.45 Georgia, "Times New Roman", serif;
+  }
+  main, .bar, .bulbs, #confetti { display: none !important; }
+  .print-only { display: block; }
+
+  @page { margin: 16mm 14mm; }
+
+  .p-title {
+    font-size: 22pt; margin: 0; letter-spacing: .02em;
+    border-bottom: 2px solid #000; padding-bottom: .2em;
+  }
+  .p-sub { margin: .3em 0 1.4em; font-size: 9pt; color: #444; font-style: italic; }
+
+  table.p-plan { width: 100%; border-collapse: collapse; margin-bottom: 1.5em; }
+  .p-plan th {
+    text-align: left; font-size: 8pt; text-transform: uppercase;
+    letter-spacing: .1em; border-bottom: 1px solid #000; padding: .3em .4em;
+  }
+  .p-plan td { padding: .5em .4em; border-bottom: 1px solid #ccc; vertical-align: top; }
+  .p-plan .p-day { font-weight: bold; width: 6.5em; }
+  .p-plan .p-meal { font-size: 12pt; display: block; }
+  .p-plan .p-extra { font-size: 10.5pt; display: block; margin-top: .15em; }
+  .p-plan .p-extra em { color: #444; font-size: 9pt; }
+  .p-plan .p-note { font-size: 8.5pt; color: #555; display: block; }
+  .p-plan .p-time { width: 5em; text-align: right; white-space: nowrap; font-size: 9.5pt; }
+
+  h2.p-h { font-size: 13pt; margin: 0 0 .6em; border-bottom: 1px solid #000; padding-bottom: .15em; }
+  .p-shop { break-before: page; page-break-before: always; }
+  .p-cols { columns: 2; column-gap: 2em; }
+  /* One tickable line per ingredient, amounts already combined. */
+  .p-item {
+    break-inside: avoid; page-break-inside: avoid;
+    font-size: 10pt; margin-bottom: .28em;
+    padding-left: 1.4em; text-indent: -1.4em;
+  }
+  .p-box { margin-right: .35em; }
+  .p-amt { font-weight: bold; font-variant-numeric: tabular-nums; }
+  .p-loose { color: #444; font-style: italic; font-size: 9pt; }
+  h3.p-h2 {
+    font-size: 10pt; margin: 1.2em 0 .5em; text-transform: uppercase;
+    letter-spacing: .08em; border-top: 1px solid #999; padding-top: .5em;
+    break-before: avoid;
+  }
+  .p-pantry { color: #333; }
+  .p-foot { margin-top: 1.5em; font-size: 8pt; color: #666; text-align: center; }
+}

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dinner This Week</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<!-- ── Sticky header: title row, then the flow row ─────────── -->
+<header class="bar">
+  <div class="bar-title">
+    <span class="brand">Dinner<span class="brand-hi">This&nbsp;Week</span></span>
+  </div>
+
+  <div class="bar-flow">
+    <button id="settingsBtn" class="gear" aria-pressed="false" aria-controls="sec-settings"
+            title="Settings">
+      <span aria-hidden="true">⚙</span><span class="gear-t">Settings</span>
+    </button>
+
+    <nav class="tabs" role="tablist" aria-label="Steps">
+      <button class="tab" role="tab" data-tab="pool" aria-selected="false" aria-controls="sec-pool">
+        <span class="step-n">1</span>
+        <span class="step-t">Recipes <span class="tab-n" id="tabPoolN"></span></span>
+      </button>
+      <span class="step-arrow" aria-hidden="true">›</span>
+      <button class="tab" role="tab" data-tab="week" aria-selected="false" aria-controls="sec-week">
+        <span class="step-n">2</span>
+        <span class="step-t">Your&nbsp;Week</span>
+      </button>
+      <span class="step-arrow" aria-hidden="true">›</span>
+      <button class="tab" role="tab" data-tab="spin" aria-selected="false" aria-controls="sec-spin">
+        <span class="step-n">3</span>
+        <span class="step-t">Spin</span>
+      </button>
+    </nav>
+  </div>
+  <div class="bulbs" aria-hidden="true"></div>
+</header>
+
+<main>
+
+  <!-- ── Recipe pool ───────────────────────────────────────── -->
+  <section class="sec" id="sec-pool" role="tabpanel" aria-label="Recipe pool" hidden>
+
+    <div id="dropzone" class="dropzone">
+      <p id="dropMsg"><strong>Drop a Recipe Keeper export</strong> — <code>.zip</code> or <code>.html</code></p>
+      <p class="dim">
+        <button type="button" class="link" id="browseBtn">browse for a file</button>
+        <span class="only-pool"> · <button type="button" class="link" id="clearPool">clear pool</button></span>
+      </p>
+      <input type="file" id="fileInput" accept=".zip,.html,.htm" hidden>
+    </div>
+
+    <!-- Shown until a pool exists: this is the front door. -->
+    <div class="empty-state no-pool">
+      <h2>Start with your recipes</h2>
+      <p class="dim">In Recipe Keeper: <strong>Settings → Import/Export → Export recipes</strong>,
+         then drop the <code>.zip</code> above.</p>
+      <p class="dim small">Everything stays in this browser — nothing is uploaded. Your pool is
+         remembered for next time.</p>
+    </div>
+
+    <div class="only-pool">
+      <div class="sec-head">
+        <h2>Recipe Pool</h2>
+        <span class="count" id="recipeCount"></span>
+      </div>
+
+      <div class="filters">
+        <select id="courseFilter" aria-label="Filter by course">
+          <option value="all">All courses</option>
+          <option value="main">Mains</option>
+          <option value="side">Sides</option>
+          <option value="dessert">Desserts</option>
+          <option value="skip">Not rolled</option>
+        </select>
+        <input type="search" id="poolSearch" placeholder="Search recipes…" aria-label="Search recipes">
+        <span class="count" id="filterTally"></span>
+      </div>
+
+      <ul class="rlist" id="recipeRows"></ul>
+      <p class="dim hint">Only <strong>mains</strong> are rolled for dinner; sides and desserts are
+         rolled when a day asks for one. Fix any wrong course with the dropdown — Recipe Keeper's
+         own tag is shown when we couldn't map it. Untick to bench a recipe.</p>
+      <div class="next-bar">
+        <button class="next" data-next="week">Next: set up your week <span aria-hidden="true">→</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Week setup ────────────────────────────────────────── -->
+  <section class="sec" id="sec-week" role="tabpanel" aria-label="This week" hidden>
+    <div class="empty-state no-pool">
+      <h2>No recipes yet</h2>
+      <p class="dim">Load an export on the <strong>Recipe Pool</strong> tab first.</p>
+    </div>
+    <div class="only-pool">
+      <div class="sec-head">
+        <h2>This Week</h2>
+        <button type="button" class="link" id="applyAll">copy Mon to all</button>
+      </div>
+      <div class="days" id="dayRows"></div>
+      <p class="dim hint">Cooking nights get a main within <em>both</em> limits, plus a side or
+         dessert where ticked. Takeaway, leftovers and not cooking sit out the spin — the reason
+         still prints on the plan.</p>
+      <div class="next-bar">
+        <button class="next" data-next="pool"><span aria-hidden="true">←</span> Back to recipes</button>
+        <button class="next primary" data-next="spin">Next: spin the week <span aria-hidden="true">→</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Spin / result ─────────────────────────────────────── -->
+  <section class="sec" id="sec-spin" role="tabpanel" aria-label="Spin" hidden>
+    <div class="empty-state no-pool">
+      <h2>Nothing to spin yet</h2>
+      <p class="dim">Load an export on the <strong>Recipe Pool</strong> tab first.</p>
+    </div>
+    <div class="only-pool">
+      <div class="sec-head">
+        <h2>The Menu</h2>
+        <button id="printBtn" class="link">⬇ PDF</button>
+      </div>
+
+      <div class="board" id="board"></div>
+
+      <div class="spin-dock">
+        <button id="spinBtn" class="big-spin">SPIN THE WEEK</button>
+        <p class="dim" id="spinNote"></p>
+      </div>
+
+      <section class="shop" id="shopping" hidden></section>
+    </div>
+  </section>
+
+  <!-- ── Settings (its own screen, outside the 1-2-3 flow) ─── -->
+  <section class="sec" id="sec-settings" role="tabpanel" aria-label="Settings" hidden>
+    <div class="sec-head">
+      <h2>Settings</h2>
+      <button id="settingsDone" class="link">done</button>
+    </div>
+
+    <div class="settings" id="settingsRows"></div>
+
+    <p class="dim hint">Saved in this browser, alongside your recipe pool. Nothing
+       leaves the device.</p>
+  </section>
+
+</main>
+
+<!-- Print-only sheet — must live outside <main>, which print CSS hides. -->
+<div id="printSheet" class="print-only"></div>
+
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<script src="app.js"></script>
+</body>
+</html>
