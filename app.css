@@ -36,6 +36,10 @@ body {
   overflow-x: hidden;
 }
 
+a, a:visited { color: var(--cool); }
+a:hover { color: var(--gold); }
+a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; border-radius: 2px; }
+
 /* ── Sticky bar ─────────────────────────────────────────── */
 .bar {
   position: fixed; inset: 0 0 auto 0; z-index: 20;

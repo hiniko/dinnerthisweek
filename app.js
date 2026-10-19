@@ -1911,6 +1911,13 @@ function init() {
 
   const dz = $('#dropzone'), fi = $('#fileInput');
   $('#browseBtn').onclick = (e) => { e.stopPropagation(); fi.click(); };
+  $('#exampleBtn').onclick = async () => {
+    try {
+      const r = await fetch('example.zip');
+      if (!r.ok) throw new Error(r.status);
+      importFile(new File([await r.blob()], 'example.zip'));
+    } catch { setDropMessage("Couldn't load the example — serve the site over http"); }
+  };
   fi.onchange = () => fi.files[0] && importFile(fi.files[0]);
   dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('over'); });
   dz.addEventListener('dragleave', () => dz.classList.remove('over'));

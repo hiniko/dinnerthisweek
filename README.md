@@ -54,7 +54,7 @@ root. Nothing else to configure.
 
 ```dockerfile
 FROM nginx:alpine
-COPY index.html app.css app.js /usr/share/nginx/html/
+COPY index.html app.css app.js example.zip /usr/share/nginx/html/
 ```
 
 ## Recipes
@@ -62,6 +62,7 @@ COPY index.html app.css app.js /usr/share/nginx/html/
 The app starts empty: drop a **Recipe Keeper export** (`.zip`, or the
 `recipes.html` inside it) on the Recipe Pool tab. It's parsed in the browser —
 nothing is uploaded, and it works offline.
+"Try the example recipes" loads the bundled `example.zip` (needs http, not `file://`).
 
 The pool is then cached in `localStorage`, so a second visit skips the upload
 entirely. Only what the app uses is kept — names, courses, times, ingredients and
